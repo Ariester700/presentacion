@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .caja {
+            width: 100px;
+            height: 100px;
+            background-color: lightblue;
+            margin-right: 10px; /* ← Margen derecho de 10px */
+        }
+    </style>
+</head>
+<body>
+    <div class="caja">Caja 1</div>
+    <div class="caja">Caja 2</div>
+    <script>
+        var pass = prompt("Ingresa la contraseña:");
+        if (pass !== "soloyoselaclave") {
+          document.body.innerHTML = "Acceso denegado";
+        }
+      </script>      
+</body>
+</html>
