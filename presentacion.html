@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Principios Aplicados - Levitador Acústico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .presentacion {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide {
+            display: none;
+            padding: 60px;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-portada {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .slide-fisica {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .slide-electronica {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .slide-programacion {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .slide-control {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .slide-conclusion {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .titulo-slide {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: slideInDown 1s ease-out;
+        }
+
+        .subtitulo {
+            font-size: 1.5em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .contenido {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: left;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .principio-card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(10px);
+            animation: slideInLeft 1s ease-out;
+        }
+
+        .icono-principio {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .ejemplo-visual {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #fff;
+            font-style: italic;
+        }
+
+        .ejemplo-visual::before {
+            content: "📌 ";
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        .lista-puntos {
+            list-style: none;
+            padding: 0;
+        }
+
+        .lista-puntos li {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .lista-puntos li::before {
+            content: "•";
+            color: #ffd700;
+            font-size: 1.5em;
+            position: absolute;
+            left: 0;
+            top: -5px;
+        }
+
+        .navegacion {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .btn-nav {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-nav:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .indicadores {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .indicador {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicador.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        .animacion-ondas {
+            position: absolute;
+            top: 50%;
+            right: 10%;
+            transform: translateY(-50%);
+            width: 300px;
+            height: 200px;
+        }
+
+        .onda {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            border-radius: 2px;
+            animation: onda-movimiento 2s infinite ease-in-out;
+        }
+
+        .onda:nth-child(1) { top: 30%; animation-delay: 0s; }
+        .onda:nth-child(2) { top: 70%; animation-delay: 1s; transform: scaleX(-1); }
+
+        .nodo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: levitar 3s infinite ease-in-out;
+        }
+
+        @keyframes onda-movimiento {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        @keyframes levitar {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .diagrama {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        .componente {
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .componente-icono {
+            font-size: 3em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .flecha {
+            font-size: 2em;
+            color: #ffd700;
+        }
+
+        .codigo-ejemplo {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            margin: 20px 0;
+            border-left: 4px solid #ffd700;
+        }
+
+        .resaltado {
+            background: rgba(255,255,0,0.3);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+            }
+            .titulo-slide {
+                font-size: 2.5em;
+            }
+            .contenido {
+                font-size: 1em;
+            }
+            .animacion-ondas {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentacion">
+        <!-- Slide 1: Portada -->
+        <div class="slide active slide-portada">
+            <div class="titulo-slide">🔬 PRINCIPIOS APLICADOS</div>
+            <div class="subtitulo">Levitador Acústico con Arduino</div>
+            <div class="contenido" style="text-align: center;">
+                <div class="principio-card">
+                    <h2>4 Disciplinas Científicas Integradas</h2>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-top: 30px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3em;">🧪</div>
+                            <h3>FÍSICA</h3>
+                            <p>Ondas Estacionarias</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3em;">⚡</div>
+                            <h3>ELECTRÓNICA</h3>
+                            <p>Amplificación de Potencia</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3em;">💻</div>
+                            <h3>PROGRAMACIÓN</h3>
+                            <p>Temporizadores Hardware</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3em;">🧠</div>
+                            <h3>CONTROL</h3>
+                            <p>Interrupciones</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Física -->
+        <div class="slide slide-fisica">
+            <div class="titulo-slide">🧪 FÍSICA: Ondas Estacionarias</div>
+            <div class="contenido">
+                <div class="principio-card">
+                    <div class="icono-principio">🌊</div>
+                    <ul class="lista-puntos">
+                        <li>Las ondas estacionarias se producen cuando <span class="resaltado">dos ondas de igual frecuencia</span> se propagan en <span class="resaltado">direcciones opuestas</span> y se superponen.</li>
+                        <li>En este proyecto, dos transductores enfrentados generan ondas ultrasónicas <span class="resaltado">(40 kHz)</span>.</li>
+                        <li>Al chocar, se forman zonas donde las ondas se <span class="resaltado">anulan (nodos)</span> y otras donde se <span class="resaltado">refuerzan (antinodos)</span>.</li>
+                        <li>En los <span class="resaltado">antinodos</span>, se produce una presión acústica capaz de <span class="resaltado">sostener objetos livianos en el aire</span>.</li>
+                    </ul>
+                    <div class="ejemplo-visual">
+                        <strong>Ejemplo visual:</strong> Como cuando una cuerda vibra y se forman "zonas quietas" (nodos).
+                    </div>
+                </div>
+            </div>
+            <div class="animacion-ondas">
+                <div class="onda"></div>
+                <div class="onda"></div>
+                <div class="nodo"></div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Electrónica -->
+        <div class="slide slide-electronica">
+            <div class="titulo-slide">⚡ ELECTRÓNICA: Amplificación</div>
+            <div class="contenido">
+                <div class="principio-card">
+                    <div class="icono-principio">🔌</div>
+                    <ul class="lista-puntos">
+                        <li>El Arduino genera una señal digital de <span class="resaltado">baja potencia (5V, pocos mA)</span>, insuficiente para excitar los transductores ultrasónicos.</li>
+                        <li>Por eso se utiliza un módulo <span class="resaltado">L298N</span>, un amplificador de potencia que actúa como <span class="resaltado">puente H</span>.</li>
+                        <li>El L298N amplifica la señal hasta <span class="resaltado">12V o más</span>, y con suficiente corriente para mover físicamente los cristales piezoeléctricos del transductor.</li>
+                    </ul>
+                    <div class="diagrama">
+                        <div class="componente">
+                            <div class="componente-icono">🤖</div>
+                            <div>Arduino</div>
+                            <div style="font-size: 0.8em;">5V / pocos mA</div>
+                        </div>
+                        <div class="flecha">➡️</div>
+                        <div class="componente">
+                            <div class="componente-icono">🔋</div>
+                            <div>L298N</div>
+                            <div style="font-size: 0.8em;">Amplificador</div>
+                        </div>
+                        <div class="flecha">➡️</div>
+                        <div class="componente">
+                            <div class="componente-icono">🔊</div>
+                            <div>Transductores</div>
+                            <div style="font-size: 0.8em;">12V / Alta corriente</div>
+                        </div>
+                    </div>
+                    <div class="ejemplo-visual">
+                        <strong>Resultado:</strong> Los transductores vibran con suficiente fuerza para generar ultrasonido útil.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Programación -->
+        <div class="slide slide-programacion">
+            <div class="titulo-slide">💻 PROGRAMACIÓN: Temporizadores</div>
+            <div class="contenido">
+                <div class="principio-card">
+                    <div class="icono-principio">⏱️</div>
+                    <ul class="lista-puntos">
+                        <li>Un <span class="resaltado">temporizador (Timer1)</span> del Arduino se configura en <span class="resaltado">modo CTC</span> para generar una señal precisa de <span class="resaltado">40.000 ciclos por segundo (40 kHz)</span>.</li>
+                        <li>Esto <span class="resaltado">NO se hace con delay()</span> porque no es suficientemente preciso para frecuencias tan altas.</li>
+                        <li>Los temporizadores trabajan directamente con el <span class="resaltado">reloj interno del microcontrolador (16 MHz)</span> para lograr exactitud en el tiempo.</li>
+                    </ul>
+                    <div class="codigo-ejemplo">
+OCR1A = 200;  // Para generar 40 kHz
+TCCR1B |= (1 << WGM12);  // Modo CTC
+TCCR1B |= (1 << CS10);   // Sin prescaler
+                    </div>
+                    <div class="ejemplo-visual">
+                        <strong>Sin temporizadores:</strong> No sería posible mantener la frecuencia estable necesaria para la levitación.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Control -->
+        <div class="slide slide-control">
+            <div class="titulo-slide">🧠 CONTROL: Interrupciones</div>
+            <div class="contenido">
+                <div class="principio-card">
+                    <div class="icono-principio">⚡</div>
+                    <ul class="lista-puntos">
+                        <li>Se utiliza una <span class="resaltado">interrupción por comparación</span> <code>ISR(TIMER1_COMPA_vect)</code> que se ejecuta cada <span class="resaltado">25 microsegundos (1/40.000 s)</span>.</li>
+                        <li>Esta interrupción cambia el estado de los pines que controlan la señal a los transductores.</li>
+                        <li>Gracias a eso, el Arduino <span class="resaltado">no necesita usar el loop()</span> para generar la onda, y puede mantener la señal <span class="resaltado">estable y en tiempo real</span>.</li>
+                    </ul>
+                    <div class="codigo-ejemplo">
+ISR(TIMER1_COMPA_vect) {
+  PORTC = TP;    // Enviar patrón
+  TP = ~TP;      // Alternar bits
+}
+                    </div>
+                    <div class="ejemplo-visual">
+                        <strong>Las interrupciones:</strong> Permiten que el microcontrolador responda a eventos de alta velocidad sin retrasos.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Conclusión -->
+        <div class="slide slide-conclusion">
+            <div class="titulo-slide">🎯 INTEGRACIÓN DE CONOCIMIENTOS</div>
+            <div class="contenido">
+                <div class="principio-card" style="background: rgba(0,0,0,0.1); color: #333;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="font-size: 4em;">🏆</div>
+                        <h2>Proyecto Multidisciplinario Exitoso</h2>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
+                        <div>
+                            <h3 style="color: #f093fb;">🧪 Física Aplicada</h3>
+                            <p>Comprensión de fenómenos ondulatorios y interferencia constructiva/destructiva</p>
+                        </div>
+                        <div>
+                            <h3 style="color: #4facfe;">⚡ Electrónica de Potencia</h3>
+                            <p>Amplificación de señales débiles para excitar transductores</p>
+                        </div>
+                        <div>
+                            <h3 style="color: #43e97b;">💻 Programación Avanzada</h3>
+                            <p>Control de hardware a nivel de registros y temporizadores</p>
+                        </div>
+                        <div>
+                            <h3 style="color: #fa709a;">🧠 Sistemas de Control</h3>
+                            <p>Interrupciones de alta frecuencia para tiempo real</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.5); border-radius: 10px;">
+                        <h3>✨ Resultado Final</h3>
+                        <p style="font-size: 1.2em;"><strong>Levitación acústica real con componentes accesibles</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <div class="navegacion">
+        <button class="btn-nav" onclick="previousSlide()">⬅️ Anterior</button>
+        <button class="btn-nav" onclick="nextSlide()">Siguiente ➡️</button>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="indicadores">
+        <div class="indicador active" onclick="goToSlide(0)"></div>
+        <div class="indicador" onclick="goToSlide(1)"></div>
+        <div class="indicador" onclick="goToSlide(2)"></div>
+        <div class="indicador" onclick="goToSlide(3)"></div>
+        <div class="indicador" onclick="goToSlide(4)"></div>
+        <div class="indicador" onclick="goToSlide(5)"></div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const indicators = document.querySelectorAll('.indicador');
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            indicators[currentSlide].classList.remove('active');
+            
+            currentSlide = (n + slides.length) % slides.length;
+            
+            slides[currentSlide].classList.add('active');
+            indicators[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function goToSlide(n) {
+            showSlide(n);
+        }
+
+        // Navegación con teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                previousSlide();
+            }
+        });
+
+        // Auto-avance opcional (descomentado para activar)
+        // setInterval(nextSlide, 10000); // Cambia cada 10 segundos
+    </script>
+</body>
+</html>
